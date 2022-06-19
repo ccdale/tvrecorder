@@ -6,6 +6,8 @@ import sys
 
 from ccaerrors import errorNotify
 
+from tvrecorder.strings import cleanString
+
 
 def dtToTs(sdate):
     """Convert a date/time string into a timestamp
@@ -37,12 +39,13 @@ def buildRecordCommand(
           start: int - timestamp of the start time
           end: int - timestamp of the end time
           adaptor: int - the adaptor number (0-3) to use
+          basedir: str - recordings directory
     returns: the command list as required by subprocess.run()
     """
     try:
         then = datetime.fromtimestamp(start)
-        schan = channel.replace(" ", "_")
-        stitle = title.replace(" ", "_")
+        schan = cleanString(channel)
+        stitle = cleanString(title)
         rdir = Path(f"{basedir}/{stitle}")
         rdir.mkdir(parents=True, exist_ok=True)
         tstamp = then.strftime("%Y%m%dT%H%M")
