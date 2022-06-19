@@ -43,7 +43,7 @@ def buildRecordCommand(channel, title, start, end, adaptor=0):
         schan = channel.replace(" ", "_")
         stitle = title.replace(" ", "_")
         rdir = Path(f"{basedir}/{stitle}")
-        rdir.mkdir(parents=True, exists_ok=True)
+        rdir.mkdir(parents=True, exist_ok=True)
         tstamp = then.strftime("%Y%m%dT%H%M")
         fqfn = Path(f"{basedir}/{stitle}/{tstamp}-{schan}-{stitle}.ts")
         length = int(end - start)
