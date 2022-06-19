@@ -19,11 +19,13 @@ def dtToTs(sdate):
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
+
 def tsToDt(ts):
     try:
         return datetime.fromtimestamp(ts)
     except Exception as e:
-    errorNotify(sys.exc_info()[2], e)
+        errorNotify(sys.exc_info()[2], e)
+
 
 def buildRecordCommand(channel, title, start, end, adaptor=0):
     """Builds the dvb5-zap command ready for subprocess
