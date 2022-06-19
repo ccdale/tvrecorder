@@ -50,7 +50,7 @@ def buildRecordCommand(channel, title, start, end, adaptor=0):
         padding = 120 + 900
         actualstart = start - 120
         cmd = f"dvb5-zap -c ~/.tzap/dvb_channel.conf -a {adaptor} -p -r "
-        cmd += f"-t {int(length + padding)} "
+        cmd += f"-t {int(length + padding)}"
         lcmd = cmd.split(" ")
         lcmd.append("-o")
         lcmd.append(fqfn)
