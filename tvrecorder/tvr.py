@@ -6,7 +6,29 @@ import sys
 from ccaerrors import errorNotify
 
 
+def dtToTs(sdate):
+    """Convert a date/time string into a timestamp
+
+    args: sdate: date/time string
+                "2022-05-14T14:27:00"
+    """
+    try:
+        dt = datetime.fromisoformat(sdate)
+        return int(dt.timestamp())
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
 def buildRecordCommand(channel, title, start, end, adaptor=0):
+    """Builds the dvb5-zap command ready for subprocess
+
+    args: channel: str - name of the channel from the dvb_channel.conf file
+          title: str - title of the program
+          start: int - timestamp of the start time
+          end: int - timestamp of the end time
+          adaptor: int - the adaptor number (0-3) to use
+    returns: the command list as required by subprocess.run()
+    """
     try:
         then = datetime.fromtimestamp(start)
         basedir = "/run/media/chris/seagate4/TV/tv/"
