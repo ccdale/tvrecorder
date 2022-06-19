@@ -29,15 +29,44 @@ def tsToDt(ts):
         errorNotify(sys.exc_info()[2], e)
 
 
+def recordProgram(
+    title,
+    channel="BBC TWO",
+    start=0,
+    end=3600,
+    frontpadding=120,
+    endpadding=900,
+    adaptor=0,
+    basedir="/run/media/chris/seagate4/TV/tv/",
+):
+    try:
+        kwargs = {
+            "channel": channel,
+            "start": start,
+            "length": int((end - start) + frontpadding + endpadding),
+            "adaptor": adaptor,
+            "basedir": basedir,
+        }
+        cmd = buildRecordCommand(title, **kwargs)
+        res = subprocess.run(cmd)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
 def buildRecordCommand(
-    channel, title, start, end, adaptor=0, basedir="/run/media/chris/seagate4/TV/tv/"
+    title,
+    channel="BBC TWO",
+    start=0,
+    length=3600,
+    adaptor=0,
+    basedir="/run/media/chris/seagate4/TV/tv/",
 ):
     """Builds the dvb5-zap command ready for subprocess
 
     args: channel: str - name of the channel from the dvb_channel.conf file
           title: str - title of the program
           start: int - timestamp of the start time
-          end: int - timestamp of the end time
+          length: int - Full length of the recording including padding
           adaptor: int - the adaptor number (0-3) to use
           basedir: str - recordings directory
     returns: the command list as required by subprocess.run()
@@ -50,11 +79,11 @@ def buildRecordCommand(
         rdir.mkdir(parents=True, exist_ok=True)
         tstamp = then.strftime("%Y%m%dT%H%M")
         fqfn = Path(f"{basedir}/{stitle}/{tstamp}-{schan}-{stitle}.ts")
-        length = int(end - start)
-        padding = 120 + 900
-        actualstart = start - 120
-        cmd = f"dvb5-zap -c ~/.tzap/dvb_channel.conf -a {adaptor} -p -r "
-        cmd += f"-t {int(length + padding)}"
+        # length = int(end - start)
+        # padding = 120 + 900
+        # actualstart = start - 120
+        cmd = f"dvbv5-zap -c ~/.tzap/dvb_channel.conf -a {adaptor} -p -r "
+        cmd += f"-t {int(length)}"
         lcmd = cmd.split(" ")
         lcmd.append("-o")
         lcmd.append(fqfn)
@@ -65,13 +94,18 @@ def buildRecordCommand(
 
 
 if __name__ == "__main__":
-    lst = buildRecordCommand(
-        "BBC TWO",
-        "Some Magic Title",
-        1655626624,
-        1655630224,
-        adaptor=2,
-        basedir="/home/chris/tv/test",
-    )
+    kwargs = {
+        "channel": "BBC ONE East E",
+        "start": 0,
+        "length": 123,
+        "adaptor": 0,
+        "basedir": "/home/chris/tv/test",
+    }
+    lst = buildRecordCommand("Some Title", **kwargs)
     for x in lst:
         print(x)
+
+    del kwargs["length"]
+    kwargs["frontpadding"] = 0
+    kwargs["endpadding"] = 0
+    recordProgram("Some Other Title", **kwargs)
