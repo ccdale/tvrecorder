@@ -39,14 +39,14 @@ def buildRecordCommand(channel, title, start, end, adaptor=0):
     """
     try:
         then = datetime.fromtimestamp(start)
-        basedir = "/run/media/chris/seagate4/TV/tv/"
+        basedir = "/home/chris/run/media/chris/seagate4/TV/tv/"
         schan = channel.replace(" ", "_")
         stitle = title.replace(" ", "_")
         rdir = Path(f"{basedir}/{stitle}")
         rdir.mkdir(parents=True)
         tstamp = then.strftime("%Y%m%dT%H%M")
         fqfn = Path(f"{basedir}/{stitle}/{tstamp}-{schan}-{stitle}.ts")
-        length = int(start - end)
+        length = int(end - start)
         padding = 120 + 900
         actualstart = start - 120
         cmd = f"dvb5-zap -c ~/.tzap/dvb_channel.conf -a {adaptor} -p -r "
@@ -58,3 +58,11 @@ def buildRecordCommand(channel, title, start, end, adaptor=0):
         return lcmd
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
+
+
+if __name__ == "__main__":
+    lst = buildRecordCommand(
+        "BBC TWO", "Some Magic Title", 1655626624, 1655630224, adaptor=2
+    )
+    for x in lst:
+        print(x)
