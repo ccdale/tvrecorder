@@ -9,11 +9,11 @@ def cleanString(istring):
         replace = "/(){}@~!£$%^&*+='\""
         for i in replace:
             istring = istring.replace(i, "")
-        istring.replace(" ", "_")
+        istring = istring.replace(" ", "_")
         while "__" in istring:
-            istring.replace("__", "_")
+            istring = istring.replace("__", "_")
         while "--" in istring:
-            istring.replace("--", "-")
+            istring = istring.replace("--", "-")
         return istring
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
