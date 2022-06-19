@@ -27,7 +27,9 @@ def tsToDt(ts):
         errorNotify(sys.exc_info()[2], e)
 
 
-def buildRecordCommand(channel, title, start, end, adaptor=0):
+def buildRecordCommand(
+    channel, title, start, end, adaptor=0, basedir="/run/media/chris/seagate4/TV/tv/"
+):
     """Builds the dvb5-zap command ready for subprocess
 
     args: channel: str - name of the channel from the dvb_channel.conf file
@@ -39,7 +41,6 @@ def buildRecordCommand(channel, title, start, end, adaptor=0):
     """
     try:
         then = datetime.fromtimestamp(start)
-        basedir = "/home/chris/run/media/chris/seagate4/TV/tv/"
         schan = channel.replace(" ", "_")
         stitle = title.replace(" ", "_")
         rdir = Path(f"{basedir}/{stitle}")
@@ -62,7 +63,12 @@ def buildRecordCommand(channel, title, start, end, adaptor=0):
 
 if __name__ == "__main__":
     lst = buildRecordCommand(
-        "BBC TWO", "Some Magic Title", 1655626624, 1655630224, adaptor=2
+        "BBC TWO",
+        "Some Magic Title",
+        1655626624,
+        1655630224,
+        adaptor=2,
+        basedir="/home/chris/tv/test",
     )
     for x in lst:
         print(x)
