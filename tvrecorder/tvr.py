@@ -61,7 +61,7 @@ def buildRecordCommand(
     adaptor=0,
     basedir="/run/media/chris/seagate4/TV/tv/",
 ):
-    """Builds the dvb5-zap command ready for subprocess
+    """Builds the dvbv5-zap command ready for subprocess
 
     args: channel: str - name of the channel from the dvb_channel.conf file
           title: str - title of the program
@@ -82,7 +82,7 @@ def buildRecordCommand(
         # length = int(end - start)
         # padding = 120 + 900
         # actualstart = start - 120
-        cmd = f"dvbv5-zap -c ~/.tzap/dvb_channel.conf -a {adaptor} -p -r "
+        cmd = f"dvbv5-zap -c /home/chris/.tzap/dvb_channel.conf -a {adaptor} -p -r "
         cmd += f"-t {int(length)}"
         lcmd = cmd.split(" ")
         lcmd.append("-o")
@@ -106,6 +106,9 @@ if __name__ == "__main__":
         print(x)
 
     del kwargs["length"]
+    kwargs["frontpadding"] = 0
+    kwargs["endpadding"] = 0
+    kwargs["end"] = 123
     kwargs["frontpadding"] = 0
     kwargs["endpadding"] = 0
     recordProgram("Some Other Title", **kwargs)
