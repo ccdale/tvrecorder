@@ -16,8 +16,4 @@
 #     You should have received a copy of the GNU General Public License
 #     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
 #
-from tvrecorder import __version__
-
-
-def test_version():
-    assert __version__ == "0.1.12"
+"""db module for tvrecorder"""
