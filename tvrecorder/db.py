@@ -29,4 +29,13 @@ connstr = "mysql+pymysql://robot:internal@druidmedia/tvguide"
 
 engine = create_engine(connstr, echo=True)
 
-Base.metadata.create_all(engine)
+
+def createTables(eng):
+    try:
+        Base.metadata.create_all(eng)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+if __name__ == "__main__":
+    createTables(engine)
