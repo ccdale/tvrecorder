@@ -23,6 +23,6 @@ from sqlalchemy import create_engine
 
 from ccaerrors import errorNotify
 
-connstr = "mysql://chris:internal@druidmedia/tvguide"
+connstr = "mysql://robot:internal@druidmedia/tvguide"
 
 engine = create_engine(connstr, echo=True)
