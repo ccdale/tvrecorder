@@ -19,10 +19,11 @@
 """SQLAlchemy models for tvrecorder."""
 import sys
 
-from sqlalchemy import Integer, String, Column
-from sqlalchemy.orm import declarative_base as Base
-
 from ccaerrors import errorNotify
+from sqlalchemy import Integer, String, Column
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
 
 
 class Schedulemd5(Base):

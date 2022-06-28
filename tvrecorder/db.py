@@ -19,10 +19,14 @@
 """db module for tvrecorder"""
 import sys
 
+from ccaerrors import errorNotify
 from sqlalchemy import create_engine
 
-from ccaerrors import errorNotify
+from tvrecorder.models import Base
 
-connstr = "mysql://robot:internal@druidmedia/tvguide"
+
+connstr = "mysql+pymysql://robot:internal@druidmedia/tvguide"
 
 engine = create_engine(connstr, echo=True)
+
+Base.metadata.create_all(engine)
