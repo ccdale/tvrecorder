@@ -1,21 +1,21 @@
 #
 # Copyright (c) 2021, Christopher Allison
 #
-#     This file is part of ccasdtv.
+#     This file is part of tvrecorder.
 #
-#     ccasdtv is free software: you can redistribute it and/or modify
+#     tvrecorder is free software: you can redistribute it and/or modify
 #     it under the terms of the GNU General Public License as published by
 #     the Free Software Foundation, either version 3 of the License, or
 #     (at your option) any later version.
 #
-#     ccasdtv is distributed in the hope that it will be useful,
+#     tvrecorder is distributed in the hope that it will be useful,
 #     but WITHOUT ANY WARRANTY; without even the implied warranty of
 #     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #     GNU General Public License for more details.
 #
 #     You should have received a copy of the GNU General Public License
-#     along with ccasdtv.  If not, see <http://www.gnu.org/licenses/>.
-"""ScheduleDirect API class for the ccasdtv application.
+#     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
+"""ScheduleDirect API class for the tvrecorder application.
 
 Mainly coding ideas from https://github.com/essandess/sd-py
 re-written in my coding style, with added token caching/renewing
@@ -26,18 +26,20 @@ import json
 import sys
 import time
 
+from ccaerrors import errorNotify
+import ccalogging
 import requests
 
-from sdjson.ccabase import Base
-from sdjson.ccabase import log
-from sdjson import __version__
 
+from tvrecorder import __version__
+
+log = ccalogging.log
 
 # when the 20191022 api is out of beta the default url should be:
 # https://json.schedulesdirect.org/20191022
 # 20191022 fails at the get schedulesmd5 step, switching to
 # https://json.schedulesdirect.org/20141201
-class SDApi(Base):
+class SDApi:
     """Schedules Direct API class."""
 
     def __init__(
@@ -77,14 +79,7 @@ class SDApi(Base):
             self.lineups = None
             log.debug("SDApi initialising")
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     # Decorator function to call the API
     def apiNoToken(self, func):
@@ -139,14 +134,7 @@ class SDApi(Base):
             )
             return requests.post(url, headers=self.headers, data=json.dumps(postdict))
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def apiGet(self, route, querydict={}):
         """Get data from the SD API."""
@@ -157,14 +145,7 @@ class SDApi(Base):
             )
             return requests.get(url, headers=self.headers, params=querydict)
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def apiPut(self, route, querydict={}):
         """Put data to the SD API."""
@@ -175,14 +156,7 @@ class SDApi(Base):
             )
             return requests.put(url, headers=self.headers, params=querydict)
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def apiToken(self):
         """Obtain an API Token."""
@@ -202,14 +176,7 @@ class SDApi(Base):
                 msg += f"""jres["response"]"""
                 raise Exception(msg)
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def apiOnline(self):
         """Obtain the status of the SD API"""
@@ -229,14 +196,7 @@ class SDApi(Base):
                 self.lineups = xstatus["lineups"]
                 # self.showResponse(xstatus["lineups"], force=True)
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def parseLatestStatus(self, xstatus):
         """Find and parse the latest status message from the SD API."""
@@ -253,14 +213,7 @@ class SDApi(Base):
                             self.online = False
                         self.statusmsg = xst["message"]
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def available(self):
         """Retrieve the list of Services available from SD."""
@@ -272,14 +225,7 @@ class SDApi(Base):
 
             return sdavailable()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def getLineups(self, countrycode, postcode):
         """Retrieve the lineups available for the country/postcode combo."""
@@ -292,14 +238,7 @@ class SDApi(Base):
 
             return sdlineups()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def preview(self, lineupcode):
         """Preview a lineup to determine the channel/station mapping."""
@@ -311,14 +250,7 @@ class SDApi(Base):
 
             return sdpreview()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def getLineup(self, lineupcode):
         """Retrieve the map of channel to stationid for the lineup."""
@@ -330,14 +262,7 @@ class SDApi(Base):
 
             return sdgetlineup()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def putLineup(self, lineupcode):
         """Put the users lineup into their SD account."""
@@ -349,14 +274,7 @@ class SDApi(Base):
 
             return sdputlineup()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            # print(msg)
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def getScheduleMd5(self, chanids):
         """Retrieve the md5 hashes for the supplied channel schedules."""
@@ -371,13 +289,7 @@ class SDApi(Base):
 
             return sdgetschedulemd5()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def getFullSchedules(self, chanids):
         """Retrieves the full schedules that are available for each channel id."""
@@ -392,13 +304,7 @@ class SDApi(Base):
 
             return sdgetfullschedules()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def getSchedules(self, chans):
         """Retrieves the dated schedule for each channel in the input dictionary.
@@ -424,13 +330,7 @@ class SDApi(Base):
 
             return sdgetschedules()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
 
     def getPrograms(self, progids):
         try:
@@ -441,10 +341,21 @@ class SDApi(Base):
 
             return sdgetprograms()
         except Exception as e:
-            exci = sys.exc_info()[2]
-            lineno = exci.tb_lineno
-            fname = exci.tb_frame.f_code.co_name
-            ename = type(e).__name__
-            msg = f"{ename} Exception at line {lineno} in function {fname}: {e}"
-            log.error(msg)
-            raise
+            errorNotify(sys.exc_info()[2], e)
+
+    def showResponse(self, jresp, force=False):
+        """Pretty print json responses."""
+        try:
+            if self.debug or force:
+                print(
+                    json.dumps(jresp, indent=4, sort_keys=True), end="\n\n", flush=True
+                )
+        except Exception as e:
+            errorNotify(sys.exc_info()[2], e)
+
+    def getTimeStamp(self, dt, dtformat="%Y-%m-%dT%H:%M:%SZ"):
+        """Returns the integer epoch timestamp for the date time described by dt."""
+        try:
+            return int(datetime.datetime.strptime(dt, dtformat).timestamp())
+        except Exception as e:
+            errorNotify(sys.exc_info()[2], e)
