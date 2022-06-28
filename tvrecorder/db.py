@@ -27,15 +27,15 @@ from tvrecorder.models import Base
 
 connstr = "mysql+pymysql://robot:internal@druidmedia/tvguide"
 
-engine = create_engine(connstr, echo=True)
+mysqlengine = create_engine(connstr, echo=True)
 
 
-def createTables(eng):
+def createTables(engine):
     try:
-        Base.metadata.create_all(eng)
+        Base.metadata.create_all(engine)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
 
 if __name__ == "__main__":
-    createTables(engine)
+    createTables(mysqlengine)
