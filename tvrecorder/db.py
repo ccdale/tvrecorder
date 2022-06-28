@@ -17,3 +17,12 @@
 #     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
 #
 """db module for tvrecorder"""
+import sys
+
+from sqlalchemy import create_engine
+
+from ccaerrors import errorNotify
+
+connstr = "mysql://chris:internal@druidmedia/tvguide"
+
+engine = create_engine(connstr, echo=True)
