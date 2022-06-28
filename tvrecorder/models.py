@@ -19,14 +19,10 @@
 """SQLAlchemy models for tvrecorder."""
 import sys
 
-from sqlalchemy import create_engine, Integer, String, Column
+from sqlalchemy import Integer, String, Column
 from sqlalchemy.orm import declarative_base as Base
 
 from ccaerrors import errorNotify
-
-connstr = "mysql://chris:internal@druidmedia/tvguide"
-
-engine = create_engine(connstr, echo=True)
 
 
 class Schedulemd5(Base):
