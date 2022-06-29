@@ -21,7 +21,7 @@ import sys
 
 from ccaerrors import errorNotify
 
-from tvrecorder.credential import makeSDCreds
+from tvrecorder.credential import getSDCreds
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
 from tvrecorder.sdapi import SDApi
@@ -31,7 +31,7 @@ def updatedb():
     try:
         cf = Configuration(appname="tvrecorder")
         mysqleng = makeDBEngine(cf)
-        uname, pword, token, tokenexpires = makeSDCreds(cf)
+        uname, pword, token, tokenexpires = getSDCreds(cf)
         if tokenexpires is None:
             tokenexpires = 0
         kwargs = {
