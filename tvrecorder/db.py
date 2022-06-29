@@ -19,18 +19,32 @@
 """db module for tvrecorder"""
 import sys
 
-from ccaconfig.config import ccaConfig
-from ccaerrors import errorNotify
+from ccaerrors import errorNotify, errorExit
 from sqlalchemy import create_engine
 
 from tvrecorder.models import Base
 
 
-def makeDBEngine(cfg, echo=True):
+def makeDBCreds(cf):
     try:
-        cstr = f'mysql+pymysql://{cfg["dbuser"]}:{cfg["dbpass"]}'
-        cstr += f'@{cfg["dbhost"]}/{cfg["dbdb"]}'
-        return create_engine(cstr, echo=echo)
+        keys = ["dbhost", "dbdb", "dbuser", "dbpass"]
+        op = {}
+        for key in keys:
+            val = cf.get(key)
+            if val is None:
+                raise Exception(f"setting {key} not found in configuration")
+            op[key] = val
+        return op
+    except Exception as e:
+        errorExit(sys.exc_info()[2], e)
+
+
+def makeDBEngine(cf, echo=True):
+    try:
+        creds = makeDBCreds(cf)
+        connstr = f'mysql+pymysql://{creds["dbuser"]}:{creds["dbpass"]}'
+        connstr += f'@{creds["dbhost"]}/{creds["dbdb"]}'
+        return create_engine(connstr, echo=echo)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
