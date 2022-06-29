@@ -27,11 +27,11 @@ def getSDCreds(cf):
     try:
         uname = cf.get("username")
         if uname is None:
-            uname = input("Schedules Direct username?")
+            uname = input("Schedules Direct username? >")
             cf.update("username", uname)
-        passw = cf.get("password")
-        if passw is None:
-            xpass = input("SD password?")
+        pword = cf.get("password")
+        if pword is None:
+            xpass = input("SD password? >")
             pword = hashlib.sha1(xpass.encode()).hexdigest()
             cf.set("password", pword)
         return (uname, pword, cf.get("token"), cf.get("tokenexpires"))
