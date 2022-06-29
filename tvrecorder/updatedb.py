@@ -29,8 +29,8 @@ from tvrecorder.db import makeDBEngine
 def updatedb():
     try:
         cf = Configuration(appname="tvrecorder")
-        cfg = cf.config
-        mysqleng = makeDBEngine(cfg)
-        cfg, uname, pword = makeSDCreds(cfg)
+        mysqleng = makeDBEngine(cf)
+        uname, pword, token, tokenexpires = makeSDCreds(cf)
+        cf.writeConfig()
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
