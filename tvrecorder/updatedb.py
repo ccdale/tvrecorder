@@ -19,16 +19,18 @@
 """Updated DB module for tvrecorder."""
 import sys
 
-from ccaconfig.config import ccaConfig
 from ccaerrors import errorNotify
 
+from tvrecorder.credential import makeSDCreds
+from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
 
 
 def updatedb():
     try:
-        cf = ccaConfig(appname="tvrecorder")
-        cfg = cf.envOverride()
+        cf = Configuration(appname="tvrecorder")
+        cfg = cf.config
         mysqleng = makeDBEngine(cfg)
+        cfg, uname, pword = makeSDCreds(cfg)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)

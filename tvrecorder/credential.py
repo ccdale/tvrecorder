@@ -23,18 +23,18 @@ import sys
 from ccaerrors import errorNotify
 
 
-def makeSDCreds(cfg):
+def makeSDCreds(cf):
     try:
-        uname = cfg.get("username", None)
+        uname = cf.config.get("username", None)
         if uname is None:
             uname = input("Schedules Direct username?")
-            cfg["username"] = uname
-        passw = cfg.get("password", None)
+            cf.update("username", uname)
+        passw = cf.config.get("password", None)
         if passw is None:
             xpass = input("SD password?")
             pword = hashlib.sha1(xpass.encode()).hexdigest()
-            cfg["password"] = pword
-        return (cfg, uname, pword)
+            cf.update("password", pword)
+        return (uname, pword)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
