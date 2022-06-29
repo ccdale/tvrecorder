@@ -20,11 +20,88 @@
 import sys
 
 from ccaerrors import errorNotify
+import ccalogging
+from sqlalchemy.orm import Session
 
 from tvrecorder.credential import getSDCreds
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
+from tvrecorder.models import Channel
 from tvrecorder.sdapi import SDApi
+
+ccalogging.setConsoleOut()
+log = ccalogging.log
+
+
+def linupRefresh(sd, cf, eng):
+    try:
+        for lineup in sd.lineups:
+            if sd.getTimeStamp(lineup["modified"]) > cf.get("lineupdate", 0):
+                log.info(f"Lineup changes detected: refreshing lineup {lineup}")
+                lineupdata = sd.getLineup(lineup["lineup"])
+                updateChannels(lineupdata, eng)
+                cf.set("lineupdate", sd.getTimeStamp(lineup["modified"]))
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def updateChannels(linupdata, eng):
+    try:
+        # with open("/home/chris/tmp/lineups.json", "r") as ifn:
+        #     xdict = json.load(ifn)
+        # xdict = json.loads(linupdata)
+        xdict = linupdata
+        rmap = getRMap(xdict["map"])
+        labels = ["name", "callsign"]
+        llabs = ["height", "width", "category", "md5", "source"]
+        existstation = createdstation = 0
+        existlogo = createdlogo = 0
+        # outer and inner context manager for the Session object
+        # the outer `session` opens the session and auto closes it
+        # the inner `session.begin` starts transactions and
+        # will auto commit when the code drops out of the context manager
+        with Session(eng) as session, session.begin():
+            for station in xdict["stations"]:
+                stationid = int(station["stationID"])
+                if not Channel.query.filter_by(stationid=stationid).first():
+                    kwargs = {key: station[key] for key in labels}
+                    kwargs["stationid"] = stationid
+                    kwargs["channelnumber"] = rmap[stationid]
+                    stat = Channel(**kwargs)
+                    log.debug(f"Inserting {stat=}")
+                    session.add(stat)
+                    # db.session.commit()
+                    createdstation += 1
+                else:
+                    existstation += 1
+            # if "stationLogo" in station:
+            #     for logo in station["stationLogo"]:
+            #         if not Logo.query.filter_by(url=logo["URL"]).first():
+            #             kwargs = {key: logo[key] for key in llabs}
+            #             kwargs["url"] = logo["URL"]
+            #             ologo = Logo(**kwargs)
+            #             log.debug(f"Inserting {ologo}")
+            #             db.session.add(ologo)
+            #             db.session.commit()
+            #             createdlogo += 1
+            #         else:
+            #             existlogo += 1
+        log.info(
+            f"Channels inserted: {createdstation}, Existing Channels: {existstation}"
+        )
+        # log.info(f"Logos inserted: {createdlogo}, Existing Logos: {existlogo}")
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def getRMap(xmap):
+    try:
+        rmap = {}
+        for xm in xmap:
+            rmap[int(xm["stationID"])] = int(xm["channel"])
+        return rmap
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
 
 
 def updatedb():
@@ -42,6 +119,10 @@ def updatedb():
             "tokenexpires": tokenexpires,
         }
         sd = SDApi(**kwargs)
+        sd.apiOnline()
+        if not sd.online:
+            raise Exception("Schedules Direct does not appear to be online.")
+        linupRefresh(sd, cf, mysqleng)
         cf.set("token", sd.token)
         cf.set("tokenexpires", sd.tokenexpires)
         cf.writeConfig()
