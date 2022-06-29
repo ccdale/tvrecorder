@@ -60,7 +60,7 @@ class Configuration:
         except Exception as e:
             errorNotify(sys.exc_info()[2], e)
 
-    def get(key, default=None):
+    def get(self, key, default=None):
         try:
             return self.config.get(key, default)
         except Exception as e:
