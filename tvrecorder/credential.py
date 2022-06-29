@@ -16,10 +16,27 @@
 #     You should have received a copy of the GNU General Public License
 #     along with ccasdtv.  If not, see <http://www.gnu.org/licenses/>.
 """Credential object using the system keyring."""
+import hashlib
 import keyring
 import sys
 
 from ccaerrors import errorNotify
+
+
+def makeSDCreds(cfg):
+    try:
+        uname = cfg.get("username", None)
+        if uname is None:
+            uname = input("Schedules Direct username?")
+            cfg["username"] = uname
+        passw = cfg.get("password", None)
+        if passw is None:
+            xpass = input("SD password?")
+            pword = hashlib.sha1(xpass.encode()).hexdigest()
+            cfg["password"] = pword
+        return (cfg, uname, pword)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
 
 
 class Credential:
