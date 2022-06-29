@@ -22,6 +22,7 @@ import sys
 from ccaerrors import errorNotify, errorExit
 from sqlalchemy import create_engine
 
+from tvrecorder.config import Configuration
 from tvrecorder.models import Base
 
 
@@ -57,7 +58,6 @@ def createTables(engine):
 
 
 if __name__ == "__main__":
-    cf = ccaConfig(appname="tvrecorder")
-    cfg = cf.envOverride()
-    mysqleng = makeDBEngine(cfg)
+    cf = Configuration(appname="tvrecorder")
+    mysqleng = makeDBEngine(cf)
     createTables(mysqleng)
