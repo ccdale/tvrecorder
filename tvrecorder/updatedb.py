@@ -33,10 +33,10 @@ ccalogging.setConsoleOut()
 log = ccalogging.log
 
 
-def linupRefresh(sd, cf, eng):
+def linupRefresh(sd, cf, eng, force=False):
     try:
         for lineup in sd.lineups:
-            if sd.getTimeStamp(lineup["modified"]) > cf.get("lineupdate", 0):
+            if sd.getTimeStamp(lineup["modified"]) > cf.get("lineupdate", 0) or force:
                 log.info(f"Lineup changes detected: refreshing lineup {lineup}")
                 lineupdata = sd.getLineup(lineup["lineup"])
                 updateChannels(lineupdata, eng)
@@ -122,7 +122,7 @@ def updatedb():
         sd.apiOnline()
         if not sd.online:
             raise Exception("Schedules Direct does not appear to be online.")
-        linupRefresh(sd, cf, mysqleng)
+        linupRefresh(sd, cf, mysqleng, force=True)
         cf.set("token", sd.token)
         cf.set("tokenexpires", sd.tokenexpires)
         cf.writeConfig()
