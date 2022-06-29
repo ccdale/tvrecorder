@@ -19,7 +19,7 @@
 """db module for tvrecorder"""
 import sys
 
-from ccaconfig import ccaConfig
+from ccaconfig.config import ccaConfig
 from ccaerrors import errorNotify
 from sqlalchemy import create_engine
 
