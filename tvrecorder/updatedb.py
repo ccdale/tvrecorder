@@ -47,3 +47,7 @@ def updatedb():
         cf.writeConfig()
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
+
+
+if __name__ == "__main__":
+    updatedb()
