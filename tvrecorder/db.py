@@ -19,15 +19,20 @@
 """db module for tvrecorder"""
 import sys
 
+from ccaconfig import ccaConfig
 from ccaerrors import errorNotify
 from sqlalchemy import create_engine
 
 from tvrecorder.models import Base
 
 
-connstr = "mysql+pymysql://robot:internal@druidmedia/tvguide"
-
-mysqlengine = create_engine(connstr, echo=True)
+def makeDBEngine(cfg, echo=True):
+    try:
+        cstr = f'mysql+pymysql://{cfg["dbuser"]}:{cfg["dbpass"]}'
+        cstr += f'@{cfg["dbhost"]}/{cfg["dbdb"]}'
+        return create_engine(cstr, echo=echo)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
 
 
 def createTables(engine):
@@ -38,4 +43,7 @@ def createTables(engine):
 
 
 if __name__ == "__main__":
-    createTables(mysqlengine)
+    cf = ccaConfig(appname="tvrecorder")
+    cfg = cf.envOverride()
+    mysqleng = makeDBEngine(cfg)
+    createTables(mysqleng)
