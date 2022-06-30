@@ -93,6 +93,28 @@ def schedules(sd, eng):
         errorNotify(sys.exc_info()[2], e)
 
 
+def removeOverlaps(chanid, start, duration, session):
+    try:
+        removed = False
+        end = start + duration
+        xs = (
+            session.query(Schedule)
+            .filter(
+                Schedule.stationid == chanid,
+                (Schedule.airdate + Schedule.duration) > start,
+                Schedule.airdate < end,
+            )
+            .all()
+        )
+        if len(xs) > 0:
+            removed = True
+            [session.delete(x) for x in xs]
+            # db.session.commit()
+        return removed
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
 def cleanSchedule(eng):
     try:
         # 7 days old schedules now, to facilitate catch up
@@ -127,7 +149,7 @@ def addSchedule(sd, sched, eng):
                 }
 
                 duration = int(prog["duration"])
-                removed = removeOverlaps(chanid, kwargs["airdate"], duration)
+                removed = removeOverlaps(chanid, kwargs["airdate"], duration, session)
                 s = session.query(Schedule).filter_by(**kwargs).first()
                 if s and not removed:
                     s.md5 = prog["md5"]
