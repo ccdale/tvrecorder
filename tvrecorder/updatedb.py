@@ -104,10 +104,10 @@ def getRMap(xmap):
         errorNotify(sys.exc_info()[2], e)
 
 
-def begin():
+def begin(debug=False):
     try:
         cf = Configuration(appname="tvrecorder")
-        mysqleng = makeDBEngine(cf)
+        mysqleng = makeDBEngine(cf, echo=debug)
         uname, pword, token, tokenexpires = getSDCreds(cf)
         if tokenexpires is None:
             tokenexpires = 0
@@ -138,7 +138,8 @@ def close(cf, sd):
 
 def updatedb():
     try:
-        cf, sd, mysqleng = begin()
+        debug = True
+        cf, sd, mysqleng = begin(debug=debug)
         linupRefresh(sd, cf, mysqleng)
         close()
     except Exception as e:
