@@ -27,7 +27,7 @@ from tvrecorder.credential import getSDCreds
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
 from tvrecorder.sdapi import SDApi
-from tvrecorder.wrangler import updateChannels
+from tvrecorder.wrangler import updateChannels, scheduleMd5
 
 ccalogging.setConsoleOut()
 log = ccalogging.log
@@ -83,6 +83,7 @@ def updatedb():
         debug = True
         cf, sd, mysqleng = begin(__appname__, debug=debug)
         linupRefresh(sd, cf, mysqleng)
+        scheduleMd5(sd)
         close()
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
