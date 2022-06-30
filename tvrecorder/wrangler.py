@@ -74,6 +74,38 @@ def schedulesMd5(sd, eng):
         errorNotify(sys.exc_info()[2], e)
 
 
+def schedules(sd, eng):
+    try:
+        cleanSchedule()
+        log.info("Retrieving schedule hashes")
+        xdat = schedulesMd5(sd)
+        log.info(f"require schedules for {len(xdat)} channels")
+        if len(xdat) > 0:
+            chans = [
+                {"stationID": str(chanid), "date": xdat[chanid]} for chanid in xdat
+            ]
+            scheds = sd.getSchedules(chans)
+            log.info("Updating new schedules")
+            for sched in scheds:
+                addSchedule(sd, sched)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def cleanSchedule(eng):
+    try:
+        # 7 days old schedules now, to facilitate catch up
+        yesterday = int(time.time()) - (86400 * 7)
+        with Session(eng) as session, session.begin():
+            n = session.query(Schedule).count()
+            old = session.query(Schedule).filter(Schedule.airdate < yesterday).all()
+            dn = len(old)
+            [session.delete(x) for x in old]
+        log.info(f"Cleaned {dn} rows from {n} Schedules.")
+    except Exception as e:
+        errorExit(sys.exc_info()[2], e)
+
+
 def updateChannels(linupdata, eng):
     try:
         # with open("/home/chris/tmp/lineups.json", "r") as ifn:
