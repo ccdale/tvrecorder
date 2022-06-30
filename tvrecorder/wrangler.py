@@ -38,6 +38,7 @@ def addUpdateSMD5(sd, smd5, chanid, xdate, session):
         kwargs = {
             "md5": smd5["md5"],
             "stationid": chanid,
+            "datestr": sdate,
             "datets": datets,
             "modified": sd.getTimeStamp(smd5["lastModified"]),
         }

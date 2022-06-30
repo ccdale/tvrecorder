@@ -36,7 +36,7 @@ class Schedulemd5(Base):
     modified = Column(Integer())
 
     def __repr__(self):
-        return f"<Schedulemd5(md5={self.md5}, stationid={self.stationid})>"
+        return f"<Schedulemd5(md5={self.md5}, stationid={self.stationid}, datestr={self.datestr}, md5={self.md5})>"
 
 
 class Schedule(Base):
