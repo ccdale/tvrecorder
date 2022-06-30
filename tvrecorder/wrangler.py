@@ -23,7 +23,7 @@ from ccaerrors import errorNotify, errorExit
 import ccalogging
 from sqlalchemy.orm import Session
 
-from tvrecorder.models import Channel, Schedulemd5, Schedule
+from tvrecorder.models import Channel, Schedulemd5, Schedule, Person, Personmap, Program
 
 log = ccalogging.log
 
@@ -76,7 +76,7 @@ def schedulesMd5(sd, eng):
 
 def schedules(sd, eng):
     try:
-        cleanSchedule()
+        cleanSchedule(eng)
         log.info("Retrieving schedule hashes")
         xdat = schedulesMd5(sd)
         log.info(f"require schedules for {len(xdat)} channels")
@@ -104,6 +104,212 @@ def cleanSchedule(eng):
         log.info(f"Cleaned {dn} rows from {n} Schedules.")
     except Exception as e:
         errorExit(sys.exc_info()[2], e)
+
+
+def addSchedule(sd, sched, eng):
+    try:
+        plist = []
+        chanid = sched["stationID"]
+        startdate = "unknown date"
+        if "metadata" in sched and "startDate" in sched["metadata"]:
+            startdate = sched["metadata"]["startDate"]
+        with Session(eng) as session, session.begin():
+            c = session.query(Channel).filter_by(stationid=chanid).first()
+            log.info(
+                f"Updating schedule for channel {c.name} with {len(sched['programs'])} programs on {startdate}"
+            )
+            for prog in sched["programs"]:
+                kwargs = {
+                    "programid": prog["programID"],
+                    "stationid": chanid,
+                    "airdate": sd.getTimeStamp(prog["airDateTime"]),
+                }
+
+                duration = int(prog["duration"])
+                removed = removeOverlaps(chanid, kwargs["airdate"], duration)
+                s = session.query(Schedule).filter_by(**kwargs).first()
+                if s and not removed:
+                    s.md5 = prog["md5"]
+                    s.duration = duration
+                    log.debug(f"update schedule: {kwargs=}")
+                else:
+                    kwargs["md5"] = prog["md5"]
+                    kwargs["duration"] = duration
+                    log.debug(f"addSchedule: {kwargs=}")
+                    s = Schedule(**kwargs)
+                    session.add(s)
+            # db.session.commit()
+            for prog in sched["programs"]:
+                p = (
+                    session.query(Program)
+                    .filter_by(programid=prog["programID"], md5=prog["md5"])
+                    .first()
+                )
+                if not p:
+                    plist.append(prog["programID"])
+            cn = len(plist)
+            if cn > 0:
+                log.info(
+                    f"require downloading of {cn} programs for {c.name} on {startdate}"
+                )
+                updatePrograms(sd, plist, session)
+    except Exception as e:
+        errorExit(sys.exc_info()[2], e)
+
+
+def updatePrograms(sd, plist, session):
+    """Retrieves information for each program in the list"""
+    try:
+        if len(plist) == 0:
+            raise Exception("updatePrograms: received empty list")
+        progs = sd.getPrograms(plist)
+        [addUpdateProgram(prog, session) for prog in progs]
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def addUpdateProgram(prog, session):
+    """Updates/Creates one program information
+
+    see
+    https://github.com/SchedulesDirect/JSON-Service/wiki/API-20141201#download-program-information
+
+    """
+    try:
+        progid = prog["programID"]
+        log.debug(f"addUpdateProg: {progid}")
+        eprog = session.query(Program).filter_by(programid=progid).first()
+        if eprog:
+            log.debug(f"{progid} already exists")
+            if eprog.md5 == prog["md5"]:
+                log.debug("md5 match")
+                return None
+            else:
+                log.debug(f"md5 mismatch: storing {progid}")
+                eprog = setProgData(eprog, prog)
+                # db.session.commit()
+        else:
+            log.debug(f"new program: {progid}")
+            kwargs = {"programid": progid, "md5": prog["md5"]}
+            kwargs["title"] = extractString(prog["titles"], "title120")
+            log.debug(f"title: {kwargs['title']}")
+            kwargs["episodetitle"] = (
+                "" if "episodeTitle150" not in prog else prog["episodeTitle150"]
+            )
+            if "descriptions" in prog and "description100" in prog["descriptions"]:
+                kwargs["shortdesc"] = extractString(
+                    prog["descriptions"]["description100"], "description"
+                )
+            if "descriptions" in prog and "description1000" in prog["descriptions"]:
+                kwargs["longdesc"] = extractString(
+                    prog["descriptions"]["description1000"], "description"
+                )
+            if "originalAirDate" in prog:
+                kwargs["originalairdate"] = prog["originalAirDate"]
+            else:
+                log.debug(f"originalAirDate not in {prog=}")
+            if "metadata" in prog:
+                kwargs["series"], kwargs["episode"] = extractSeries(prog["metadata"])
+            eprog = Program(**kwargs)
+            session.add(eprog)
+            # db.session.commit()
+        if "cast" in prog:
+            [addUpdatePerson(item, progid, session) for item in prog["cast"]]
+        if "crew" in prog:
+            [addUpdatePerson(item, progid, session) for item in prog["crew"]]
+    except Exception as e:
+        errorExit(sys.exc_info()[2], e)
+
+
+def setProgData(eprog, prog):
+    try:
+        eprog.md5 = prog["md5"]
+        eprog.title = extractString(prog["titles"], "title120")
+        eprog.episodetitle = (
+            "" if "episodeTitle150" not in prog else prog["episodeTitle150"]
+        )
+        if "descriptions" in prog and "description1000" in prog["descriptions"]:
+            eprog.longdesc = extractString(
+                prog["descriptions"]["description1000"], "description"
+            )
+        if "descriptions" in prog and "description100" in prog["descriptions"]:
+            eprog.shortdesc = extractString(
+                prog["descriptions"]["description100"], "description"
+            )
+        if "originalAirDate" in prog:
+            eprog.originalairdate = prog["originalAirDate"]
+        if "metadata" in prog:
+            eprog.series, eprog.episode = extractSeries(prog["metadata"])
+        return eprog
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def extractString(xlist, key):
+    try:
+        log.debug(f"extractString: {xlist=}, {key=}")
+        for item in xlist:
+            if key in item:
+                return item[key]
+        log.warning(f"{key} not found in {xlist}")
+        return None
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def extractSeries(mdata):
+    try:
+        series = episode = 0
+        for item in mdata:
+            series = int(item["Gracenote"]["season"])
+            episode = int(item["Gracenote"]["episode"])
+        return (series, episode)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def addUpdatePerson(person, programid, session):
+    try:
+        log.debug(f"addUpdatePerson: {person['name']}")
+        per = session.query(Person).filter_by(personid=person["personId"]).first()
+        if not per:
+            log.debug(f"storing person: {person['name']}")
+            kwargs = {
+                "personid": person["personId"],
+                "name": person["name"],
+                "nameid": person["nameId"],
+            }
+            per = Person(**kwargs)
+            session.add(per)
+            # db.session.commit()
+        billingorder = "0" if "billingorder" not in person else person["billingorder"]
+        role = "" if "role" not in person else person["role"]
+        addUpdatePersonMap(per.personid, programid, role, billingorder, session)
+    except Exception as e:
+        msg = f"{person=}, {programid=}"
+        errorExit(sys.exc_info()[2], e, msg)
+
+
+def addUpdatePersonMap(personid, programid, role, billingorder, session):
+    try:
+        cm = (
+            session.query(Personmap)
+            .filter_by(programid=programid, personid=personid)
+            .first()
+        )
+        if not cm:
+            kwargs = {
+                "programid": programid,
+                "personid": personid,
+                "role": role,
+                "billingorder": billingorder,
+            }
+            cm = Personmap(**kwargs)
+            session.add(cm)
+            # db.session.commit()
+    except Exception as e:
+        msg = f"{personid=}, {programid=}, {role=}, {billingorder=}"
+        errorNotify(sys.exc_info()[2], e, msg)
 
 
 def updateChannels(linupdata, eng):
