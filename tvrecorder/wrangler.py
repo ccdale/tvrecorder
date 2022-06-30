@@ -47,7 +47,7 @@ def addUpdateSMD5(sd, smd5, chanid, xdate, session):
         errorExit(sys.exc_info()[2], msg)
 
 
-def schedulesMd5(sd):
+def schedulesMd5(sd, eng):
     try:
         retrieve = {}
         with Session(eng) as session, session.begin():
