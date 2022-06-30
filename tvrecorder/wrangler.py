@@ -88,7 +88,7 @@ def schedules(sd, eng):
             scheds = sd.getSchedules(chans)
             log.info("Updating new schedules")
             for sched in scheds:
-                addSchedule(sd, sched)
+                addSchedule(sd, sched, eng)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
