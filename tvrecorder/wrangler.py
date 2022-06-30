@@ -79,7 +79,7 @@ def schedules(sd, eng):
     try:
         cleanSchedule(eng)
         log.info("Retrieving schedule hashes")
-        xdat = schedulesMd5(sd)
+        xdat = schedulesMd5(sd, eng)
         log.info(f"require schedules for {len(xdat)} channels")
         if len(xdat) > 0:
             chans = [
