@@ -20,9 +20,12 @@
 import sys
 
 from ccaerrors import errorNotify, errorExit
+import ccalogging
 from sqlalchemy.orm import Session
 
 from tvrecorder.models import Channel, Schedulemd5, Schedule
+
+log = ccalogging.log
 
 
 def addUpdateSMD5(sd, smd5, chanid, xdate, session):
