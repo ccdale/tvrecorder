@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tvrecorder"
-version = "0.1.40"
+version = "0.1.41"
 description = ""
 authors = ["ccdale <chris.charles.allison+tvrecorder@gmail.com>"]
 
