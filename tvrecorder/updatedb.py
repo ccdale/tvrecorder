@@ -21,13 +21,11 @@ import sys
 
 from ccaerrors import errorNotify, errorExit
 import ccalogging
-from sqlalchemy.orm import Session
 
 from tvrecorder import __version__, __appname__
 from tvrecorder.credential import getSDCreds
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
-from tvrecorder.models import Channel
 from tvrecorder.sdapi import SDApi
 from tvrecorder.wrangler import updateChannels
 

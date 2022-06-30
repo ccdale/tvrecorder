@@ -20,6 +20,7 @@
 import sys
 
 from ccaerrors import errorNotify, errorExit
+from sqlalchemy.orm import Session
 
 from tvrecorder.models import Channel, Schedulemd5, Schedule
 
