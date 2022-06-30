@@ -40,7 +40,7 @@ def makeDBCreds(cf):
         errorExit(sys.exc_info()[2], e)
 
 
-def makeDBEngine(cf, echo=True):
+def makeDBEngine(cf, echo=False):
     try:
         creds = makeDBCreds(cf)
         connstr = f'mysql+pymysql://{creds["dbuser"]}:{creds["dbpass"]}'
