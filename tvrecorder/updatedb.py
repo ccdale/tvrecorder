@@ -139,7 +139,7 @@ def close(cf, sd):
 def updatedb():
     try:
         cf, sd, mysqleng = begin()
-        linupRefresh(sd, cf, mysqleng, force=True)
+        linupRefresh(sd, cf, mysqleng)
         close()
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
