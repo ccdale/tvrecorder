@@ -50,19 +50,20 @@ def addUpdateSMD5(sd, smd5, chanid, xdate, session):
 def schedulesMd5(sd):
     try:
         retrieve = {}
-        xall = Station.query.all()
-        clist = Station.query.filter_by(getdata=1).all()
-        log.info(f"retrieving MD5 hashes for {len(clist)} / {len(xall)} channels")
-        slist = [x.stationid for x in clist]
-        smd5 = sd.getScheduleMd5(slist)
-        for chan in smd5:
-            log.debug(f"scheduleMd5: {chan=}")
-            for xdate in smd5[chan]:
-                log.debug(f"scheduleMd5: {xdate=}")
-                if addUpdateSMD5(sd, smd5[chan][xdate], chan, xdate):
-                    if chan not in retrieve:
-                        retrieve[chan] = []
-                    retrieve[chan].append(xdate)
+        with Session(eng) as session, session.begin():
+            xall = session.query(Channel).all()
+            # clist = Station.query.filter_by(getdata=1).all()
+            # log.info(f"retrieving MD5 hashes for {len(clist)} / {len(xall)} channels")
+            slist = [x.stationid for x in xall]
+            smd5 = sd.getScheduleMd5(slist)
+            for chan in smd5:
+                log.debug(f"scheduleMd5: {chan=}")
+                for xdate in smd5[chan]:
+                    log.debug(f"scheduleMd5: {xdate=}")
+                    if addUpdateSMD5(sd, smd5[chan][xdate], chan, xdate, session):
+                        if chan not in retrieve:
+                            retrieve[chan] = []
+                        retrieve[chan].append(xdate)
         log.debug(f"sheduleMd5 returns: {retrieve=}")
         return retrieve
     except Exception as e:
