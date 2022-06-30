@@ -84,7 +84,7 @@ def updatedb():
         cf, sd, mysqleng = begin(__appname__, debug=debug)
         linupRefresh(sd, cf, mysqleng)
         schedulesMd5(sd)
-        close()
+        close(cf, sd)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
