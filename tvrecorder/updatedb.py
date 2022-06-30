@@ -23,6 +23,7 @@ from ccaerrors import errorNotify, errorExit
 import ccalogging
 from sqlalchemy.orm import Session
 
+from tvrecorder import __version__, __appname__
 from tvrecorder.credential import getSDCreds
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
@@ -104,9 +105,9 @@ def getRMap(xmap):
         errorNotify(sys.exc_info()[2], e)
 
 
-def begin(debug=False):
+def begin(appname, debug=False):
     try:
-        cf = Configuration(appname="tvrecorder")
+        cf = Configuration(appname=appname)
         mysqleng = makeDBEngine(cf, echo=debug)
         uname, pword, token, tokenexpires = getSDCreds(cf)
         if tokenexpires is None:
@@ -114,7 +115,7 @@ def begin(debug=False):
         kwargs = {
             "username": uname,
             "password": pword,
-            "appname": "tvrecorder",
+            "appname": appname,
             "token": token,
             "tokenexpires": tokenexpires,
         }
@@ -139,7 +140,7 @@ def close(cf, sd):
 def updatedb():
     try:
         debug = True
-        cf, sd, mysqleng = begin(debug=debug)
+        cf, sd, mysqleng = begin(__appname__, debug=debug)
         linupRefresh(sd, cf, mysqleng)
         close()
     except Exception as e:
