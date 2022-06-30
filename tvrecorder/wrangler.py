@@ -30,7 +30,7 @@ log = ccalogging.log
 
 def addUpdateSMD5(sd, smd5, chanid, xdate, session):
     try:
-        md5 = session.query(Channel).filter_by(md5=smd5["md5"]).first()
+        md5 = session.query(ScheduleMd5).filter_by(md5=smd5["md5"]).first()
         if md5:
             return False
         sdate = f"{xdate}T00:00:00Z"
@@ -46,9 +46,9 @@ def addUpdateSMD5(sd, smd5, chanid, xdate, session):
         session.add(md5)
         return True
     except Exception as e:
-        msg = f"{e}\n{smd5=}, {chanid=}, {xdate=}\n"
-        msg += f"{kwargs=}"
-        errorExit(sys.exc_info()[2], msg)
+        # msg = f"{e}\n{smd5=}, {chanid=}, {xdate=}\n"
+        # msg += f"{kwargs=}"
+        errorExit(sys.exc_info()[2], e)
 
 
 def schedulesMd5(sd, eng):
