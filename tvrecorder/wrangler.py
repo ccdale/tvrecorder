@@ -31,7 +31,7 @@ log = ccalogging.log
 
 def addUpdateSMD5(sd, smd5, chanid, xdate, session):
     try:
-        md5 = session.query(Schedule).filter_by(md5=smd5["md5"]).first()
+        md5 = session.query(Schedulemd5).filter_by(md5=smd5["md5"]).first()
         if md5:
             return False
         sdate = f"{xdate}T00:00:00Z"
