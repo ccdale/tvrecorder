@@ -19,7 +19,7 @@
 """Updated DB module for tvrecorder."""
 import sys
 
-from ccaerrors import errorNotify
+from ccaerrors import errorNotify, errorExit
 import ccalogging
 from sqlalchemy.orm import Session
 
@@ -104,7 +104,7 @@ def getRMap(xmap):
         errorNotify(sys.exc_info()[2], e)
 
 
-def updatedb():
+def begin():
     try:
         cf = Configuration(appname="tvrecorder")
         mysqleng = makeDBEngine(cf)
@@ -122,10 +122,25 @@ def updatedb():
         sd.apiOnline()
         if not sd.online:
             raise Exception("Schedules Direct does not appear to be online.")
-        linupRefresh(sd, cf, mysqleng, force=True)
+        return (cf, sd, mysqleng)
+    except Exception as e:
+        errorExit(sys.exc_info()[2], e)
+
+
+def close(cf, sd):
+    try:
         cf.set("token", sd.token)
         cf.set("tokenexpires", sd.tokenexpires)
         cf.writeConfig()
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def updatedb():
+    try:
+        cf, sd, mysqleng = begin()
+        linupRefresh(sd, cf, mysqleng, force=True)
+        close()
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
