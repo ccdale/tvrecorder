@@ -18,6 +18,7 @@
 #
 """Data wrangler module for tvrecorder."""
 import sys
+import time
 
 from ccaerrors import errorNotify, errorExit
 import ccalogging
