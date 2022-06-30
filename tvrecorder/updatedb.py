@@ -118,6 +118,7 @@ def begin(appname, debug=False):
             "appname": appname,
             "token": token,
             "tokenexpires": tokenexpires,
+            "debug": debug,
         }
         sd = SDApi(**kwargs)
         sd.apiOnline()
