@@ -29,7 +29,8 @@ from tvrecorder.db import makeDBEngine
 from tvrecorder.sdapi import SDApi
 from tvrecorder.wrangler import updateChannels, schedules
 
-ccalogging.setConsoleOut()
+ccalogging.setLogFile("/home/chris/updatedb.out")
+ccalogging.setInfo()
 log = ccalogging.log
 
 
@@ -80,7 +81,7 @@ def close(cf, sd):
 
 def updatedb():
     try:
-        debug = True
+        debug = False
         cf, sd, mysqleng = begin(__appname__, debug=debug)
         linupRefresh(sd, cf, mysqleng)
         schedules(sd, mysqleng)
