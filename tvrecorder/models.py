@@ -59,7 +59,7 @@ class Channel(Base):
     name = Column(String(128), primary_key=True)
     channelnumber = Column(Integer(), nullable=True)
     callsign = Column(String(128), nullable=True)
-    logoid = Column(Integer(), nullable=True)
+    getdata = Column(Integer(), nullable=True)
     dvbname = Column(String(128), nullable=True)
 
     def __repr__(self):

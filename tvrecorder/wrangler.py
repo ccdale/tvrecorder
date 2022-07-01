@@ -345,7 +345,6 @@ def updateChannels(linupdata, eng):
         labels = ["name", "callsign"]
         llabs = ["height", "width", "category", "md5", "source"]
         existstation = createdstation = 0
-        existlogo = createdlogo = 0
         # outer and inner context manager for the Session object
         # the outer `session` opens the session and auto closes it
         # the inner `session.begin` starts transactions and
@@ -364,22 +363,9 @@ def updateChannels(linupdata, eng):
                     createdstation += 1
                 else:
                     existstation += 1
-            # if "stationLogo" in station:
-            #     for logo in station["stationLogo"]:
-            #         if not Logo.query.filter_by(url=logo["URL"]).first():
-            #             kwargs = {key: logo[key] for key in llabs}
-            #             kwargs["url"] = logo["URL"]
-            #             ologo = Logo(**kwargs)
-            #             log.debug(f"Inserting {ologo}")
-            #             db.session.add(ologo)
-            #             db.session.commit()
-            #             createdlogo += 1
-            #         else:
-            #             existlogo += 1
         log.info(
             f"Channels inserted: {createdstation}, Existing Channels: {existstation}"
         )
-        # log.info(f"Logos inserted: {createdlogo}, Existing Logos: {existlogo}")
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
