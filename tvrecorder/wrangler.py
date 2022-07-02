@@ -24,6 +24,7 @@ from ccaerrors import errorNotify, errorExit
 import ccalogging
 from sqlalchemy.orm import Session
 
+from tvrecorder import searchZap, chooseName
 from tvrecorder.models import Channel, Schedulemd5, Schedule, Person, Personmap, Program
 
 log = ccalogging.log
@@ -370,20 +371,32 @@ def updateChannels(linupdata, eng):
         errorNotify(sys.exc_info()[2], e)
 
 
-def getAllChannels(eng):
-    try:
-        with Session(eng) as session, session.begin():
-            chans = session.query(Channel).all()
-        return chans
-    except Exception as e:
-        errorNotify(sys.exc_info()[2], e)
-
-
 def setMappedChannels(eng, updates):
     try:
         with Session(eng) as session, session.begin():
             for update in updates:
                 session.update(update)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def mapToDVB(eng):
+    try:
+        with Session(eng) as session, session.begin():
+            chans = session.query(Channel).all()
+            for chan in chans:
+                if len(chan.dvbname) > 0:
+                    continue
+                poss, found = searchZap(zap, chan.name)
+                if found:
+                    print(f"Channel {chan.name} - name found exactly in zap")
+                    chan.dvbname = chan.name
+                    continue
+                choice = chooseName(poss, chan.name)
+                if len(choice) == 0:
+                    break
+                chan.dvbname = choice.strip()
+                print(f"DVB Name {chan.dvbname} set for {chan.name}")
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 

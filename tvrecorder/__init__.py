@@ -18,3 +18,29 @@
 #
 __version__ = "0.1.49"
 __appname__ = "tvrecorder"
+
+
+def searchZap(zap, search):
+    try:
+        poss = []
+        found = False
+        for sect in zap.sections():
+            if search.lower()[:4] == sect.lower()[:4]:
+                poss.append[sect]
+            elif search == sect:
+                found = True
+                break
+        return (poss, found)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def chooseName(poss, chan):
+    try:
+        for n in poss:
+            print(n)
+        print("Type the correct DVB name for channel {chan}")
+        choice = input("? ")
+        return choice
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)

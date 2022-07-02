@@ -27,7 +27,7 @@ import ccalogging
 from tvrecorder import __version__, __appname__
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
-from tvrecorder.wrangler import getAllChannels, setMappedChannels
+from tvrecorder.wrangler import mapToDVB
 
 ccalogging.setLogFile("/home/chris/channelmapper.out")
 ccalogging.setInfo()
@@ -47,54 +47,11 @@ def begin(appname, debug=False):
         errorExit(sys.exc_info()[2], e)
 
 
-def searchZap(zap, search):
-    try:
-        poss = []
-        found = False
-        for sect in zap.sections():
-            if search.lower()[:4] == sect.lower()[:4]:
-                poss.append[sect]
-            elif search == sect:
-                found = True
-                break
-        return (poss, found)
-    except Exception as e:
-        errorNotify(sys.exc_info()[2], e)
-
-
-def chooseName(poss, chan):
-    try:
-        for n in poss:
-            print(n)
-        print("Type the correct DVB name for channel {chan}")
-        choice = input("? ")
-        return choice
-    except Exception as e:
-        errorNotify(sys.exc_info()[2], e)
-
-
 def channelmapper():
     try:
-        debug = False
+        debug = True
         cf, mysqleng, zap = begin(__appname__, debug=debug)
-        chans = getAllChannels(mysqleng)
-        updates = []
-        for chan in chans:
-            if len(chan.dvbname) > 0:
-                continue
-            poss, found = searchZap(zap, chan.name)
-            if found:
-                print(f"Channel {chan.name} - name found exactly in zap")
-                chan.dvbname = chan.name
-                updates.append(chan)
-                continue
-            # choose which one
-            choice = chooseName(poss, chan.name)
-            if len(choice) == 0:
-                break
-            chan.dvbname = choice
-            updates.append(chan)
-        setMappedChannels(eng, updates)
+        mapToDVB(eng)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
