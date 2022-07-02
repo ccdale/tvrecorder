@@ -379,6 +379,15 @@ def getAllChannels(eng):
         errorNotify(sys.exc_info()[2], e)
 
 
+def setMappedChannels(eng, updates):
+    try:
+        with Session(eng) as session, session.begin():
+            for update in updates:
+                session.update(update)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
 def getRMap(xmap):
     try:
         rmap = {}
