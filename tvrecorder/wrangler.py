@@ -380,7 +380,7 @@ def setMappedChannels(eng, updates):
         errorNotify(sys.exc_info()[2], e)
 
 
-def mapToDVB(eng):
+def mapToDVB(eng, zap):
     try:
         with Session(eng) as session, session.begin():
             chans = session.query(Channel).all()
