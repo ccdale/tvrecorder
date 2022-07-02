@@ -353,7 +353,11 @@ def updateChannels(linupdata, eng):
         with Session(eng) as session, session.begin():
             for station in xdict["stations"]:
                 stationid = int(station["stationID"])
-                if not session.query(Channel).filter_by(stationid=stationid).first():
+                if (
+                    not session.query(Channel)
+                    .filter_by(getdata > 0, stationid=stationid)
+                    .first()
+                ):
                     kwargs = {key: station[key] for key in labels}
                     kwargs["stationid"] = stationid
                     kwargs["channelnumber"] = rmap[stationid]
