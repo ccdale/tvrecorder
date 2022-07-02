@@ -385,7 +385,7 @@ def mapToDVB(eng):
         with Session(eng) as session, session.begin():
             chans = session.query(Channel).all()
             for chan in chans:
-                if len(chan.dvbname) > 0:
+                if chan.dvbname is not None:
                     continue
                 poss, found = searchZap(zap, chan.name)
                 if found:
