@@ -51,7 +51,7 @@ def channelmapper():
     try:
         debug = True
         cf, mysqleng, zap = begin(__appname__, debug=debug)
-        mapToDVB(eng)
+        mapToDVB(mysqleng)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
