@@ -44,3 +44,15 @@ def chooseName(poss, chan):
         return choice
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
+
+
+def chooseGetData(chan):
+    try:
+        print(f"0, 1 or 2 - get data for channel {chan}")
+        sin = input("? ")
+        iin = int(sin)
+        if iin < 0 or iin > 2:
+            iin = 0
+        return iin
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
