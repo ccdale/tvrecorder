@@ -20,7 +20,7 @@ import sys
 
 from ccaerrors import errorNotify, errorExit, errorRaise
 
-__version__ = "0.1.55"
+__version__ = "0.1.56"
 __appname__ = "tvrecorder"
 
 
@@ -36,6 +36,7 @@ def searchZap(zap, search):
                 break
         return (poss, found)
     except Exception as e:
+        print(e)
         errorNotify(sys.exc_info()[2], e)
 
 
