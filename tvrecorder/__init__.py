@@ -20,7 +20,7 @@ import sys
 
 from ccaerrors import errorNotify, errorExit, errorRaise
 
-__version__ = "0.1.57"
+__version__ = "0.1.58"
 __appname__ = "tvrecorder"
 
 
@@ -29,15 +29,12 @@ def searchZap(zap, search):
         poss = []
         found = False
         sch = search.lower()
-        if len(sch) > 4:
-            for sect in zap.sections():
-                if sch[:4] in sect.lower():
-                    poss.append[sect]
-                elif search == sect:
-                    found = True
-                    break
-        else:
-            raise Exception(f"that's odd: {search=}")
+        for sect in zap.sections():
+            if search.lower()[:4] in sect.lower():
+                poss.append(sect)
+            elif search == sect:
+                found = True
+                break
         return (poss, found)
     except Exception as e:
         print(e)
