@@ -24,7 +24,7 @@ from ccaerrors import errorNotify, errorExit
 import ccalogging
 from sqlalchemy.orm import Session
 
-from tvrecorder import searchZap, chooseName
+from tvrecorder import searchZap, chooseName, chooseGetData
 from tvrecorder.models import Channel, Schedulemd5, Schedule, Person, Personmap, Program
 
 log = ccalogging.log
@@ -391,12 +391,14 @@ def mapToDVB(eng):
                 if found:
                     print(f"Channel {chan.name} - name found exactly in zap")
                     chan.dvbname = chan.name
+                    chan.getdata = chooseGetData(chan.name)
                     continue
                 choice = chooseName(poss, chan.name)
                 if len(choice) == 0:
                     break
                 chan.dvbname = choice.strip()
                 print(f"DVB Name {chan.dvbname} set for {chan.name}")
+                chan.getdata = chooseGetData(chan.name)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
