@@ -25,7 +25,7 @@ def searchZap(zap, search):
         poss = []
         found = False
         for sect in zap.sections():
-            if search.lower()[:4] == sect.lower()[:4]:
+            if search.lower()[:4] in sect.lower():
                 poss.append[sect]
             elif search == sect:
                 found = True
