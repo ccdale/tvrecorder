@@ -355,7 +355,7 @@ def updateChannels(linupdata, eng):
                 stationid = int(station["stationID"])
                 if (
                     not session.query(Channel)
-                    .filter_by(getdata > 0, stationid=stationid)
+                    .filter(Channel.stationid == stationid, Channel.getdata > 0)
                     .first()
                 ):
                     kwargs = {key: station[key] for key in labels}
