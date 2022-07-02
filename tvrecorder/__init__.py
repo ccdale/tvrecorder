@@ -39,7 +39,7 @@ def chooseName(poss, chan):
     try:
         for n in poss:
             print(n)
-        print("Type the correct DVB name for channel {chan}")
+        print(f"Type the correct DVB name for channel {chan}")
         choice = input("? ")
         return choice
     except Exception as e:
