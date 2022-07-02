@@ -370,6 +370,15 @@ def updateChannels(linupdata, eng):
         errorNotify(sys.exc_info()[2], e)
 
 
+def getAllChannels(eng):
+    try:
+        with Session(eng) as session, session.begin():
+            chans = session.query(Channel).all()
+        return chans
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
 def getRMap(xmap):
     try:
         rmap = {}
