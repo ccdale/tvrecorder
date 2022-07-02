@@ -16,6 +16,10 @@
 #     You should have received a copy of the GNU General Public License
 #     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
 #
+import sys
+
+from ccaerrors import errorNotify, errorExit, errorRaise
+
 __version__ = "0.1.54"
 __appname__ = "tvrecorder"
 
