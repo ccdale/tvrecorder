@@ -16,7 +16,7 @@
 #     You should have received a copy of the GNU General Public License
 #     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
 #
-__version__ = "0.1.51"
+__version__ = "0.1.52"
 __appname__ = "tvrecorder"
 
 
