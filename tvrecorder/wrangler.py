@@ -66,6 +66,7 @@ def schedulesMd5(sd, eng):
             #
             # slist = [x.stationid for x in xall]
             #
+            # print([x.name for x in xsome])
             slist = [x.stationid for x in xsome]
             smd5 = sd.getScheduleMd5(slist)
             for chan in smd5:
