@@ -34,7 +34,7 @@ home = os.path.expanduser("~/")
 logd = os.path.join(home, "log")
 res = os.makedirs(logd, exist_ok=True)
 logfn = os.path.join(logd, f"{__appname__}.log")
-ccalogging.setLogFile(logfn)
+ccalogging.setLogFile(logfn, rotation=30)
 ccalogging.setInfo()
 log = ccalogging.log
 
