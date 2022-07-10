@@ -83,6 +83,16 @@ def schedulesMd5(sd, eng):
         errorNotify(sys.exc_info()[2], e)
 
 
+def favourites(eng, favs=True):
+    try:
+        gd = 1 if favs else 0
+        with Session(eng) as session, session.begin():
+            favs = session.query(Channel).filter(Channel.getdata > gd).all()
+        return favs
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
 def schedules(sd, eng):
     try:
         cleanSchedule(eng)
