@@ -57,10 +57,16 @@ def schedulesMd5(sd, eng):
     try:
         retrieve = {}
         with Session(eng) as session, session.begin():
-            xall = session.query(Channel).all()
+            #
+            # xall = session.query(Channel).all()
+            #
+            xsome = session.query(Channel).filter(Channel.getdata > 0).all()
             # clist = Station.query.filter_by(getdata=1).all()
             # log.info(f"retrieving MD5 hashes for {len(clist)} / {len(xall)} channels")
-            slist = [x.stationid for x in xall]
+            #
+            # slist = [x.stationid for x in xall]
+            #
+            slist = [x.stationid for x in xsome]
             smd5 = sd.getScheduleMd5(slist)
             for chan in smd5:
                 log.debug(f"scheduleMd5: {chan=}")
