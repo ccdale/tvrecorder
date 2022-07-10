@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, Chris Allison
+# Copyright (c) 2022, Chris Allison
 #
 #     This file is part of tvrecorder.
 #
