@@ -20,6 +20,8 @@ import sys
 import PySimpleGUI as sg
 from ccaerrors import errorNotify, errorRaise
 
+from tvrecorder.wrangler import favourites
+
 
 def credsWindow(username):
     try:
@@ -54,3 +56,15 @@ def errorWindow(emsg):
         win.close()
     except Exception as e:
         errorRaise(sys.exc_info()[2], e)
+
+
+def chanWindow(engine):
+    try:
+        favs = favourites(engine)
+        print(favs)
+        chans = [[x["channelnumber"], x["name"]] for x in favs]
+        layout = [[sg.T("test chans")], [sg.Cancel()], [sg.Listbox(values=chans)]]
+        win = sg.Window("test chans", layout)
+        win.close()
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)

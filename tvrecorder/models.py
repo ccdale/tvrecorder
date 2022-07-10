@@ -20,7 +20,7 @@
 import sys
 
 from ccaerrors import errorNotify
-from sqlalchemy import Integer, String, Column
+from sqlalchemy import Integer, String, Column, inspect
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -50,6 +50,9 @@ class Schedule(Base):
 
     def __repr__(self):
         return f"<Schedule(programid={self.programid}, stationid={self.stationid}, airdate={self.airdate}>"
+
+    def _todict_(self):
+        return {{c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
 
 class Channel(Base):
