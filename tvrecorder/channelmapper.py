@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, Centrica Hive Ltd.
+# Copyright (c) 2018, Chris Allison
 #
 #     This file is part of tvrecorder.
 #
