@@ -17,6 +17,7 @@
 #     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
 #
 """Updated DB module for tvrecorder."""
+import os
 import sys
 
 from ccaerrors import errorNotify, errorExit
@@ -29,7 +30,11 @@ from tvrecorder.db import makeDBEngine
 from tvrecorder.sdapi import SDApi
 from tvrecorder.wrangler import updateChannels, schedules
 
-ccalogging.setLogFile("/home/chris/updatedb.out")
+home = os.path.expanduser("~/")
+logd = os.path.join(home, "log")
+res = os.makedirs(logd, exist_ok=True)
+logfn = os.path.join(logd, f"{__appname__}.log")
+ccalogging.setLogFile(logfn)
 ccalogging.setInfo()
 log = ccalogging.log
 
