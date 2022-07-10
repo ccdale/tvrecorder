@@ -88,7 +88,8 @@ def favourites(eng, favs=True):
         gd = 1 if favs else 0
         with Session(eng) as session, session.begin():
             xfavs = session.query(Channel).filter(Channel.getdata > gd).all()
-            favs = [x.__dict__ for x in xfavs]
+            favs = [x._todict_() for x in xfavs]
+            # favs = [x.__dict__ for x in xfavs]
         return favs
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)

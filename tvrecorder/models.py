@@ -38,6 +38,9 @@ class Schedulemd5(Base):
     def __repr__(self):
         return f"<Schedulemd5(md5={self.md5}, stationid={self.stationid}, datestr={self.datestr}, md5={self.md5})>"
 
+    def _todict_(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
 
 class Schedule(Base):
     __tablename__ = "schedule"
@@ -52,7 +55,7 @@ class Schedule(Base):
         return f"<Schedule(programid={self.programid}, stationid={self.stationid}, airdate={self.airdate}>"
 
     def _todict_(self):
-        return {{c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
 
 class Channel(Base):
@@ -67,6 +70,9 @@ class Channel(Base):
 
     def __repr__(self):
         return f"<Channel(stationid={self.stationid}, name={self.name}, dvbname={self.dvbname}>"
+
+    def _todict_(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
 
 class Program(Base):
@@ -85,6 +91,9 @@ class Program(Base):
     def __repr__(self):
         return f"<Program(title={self.title}, md5={self.md5}>"
 
+    def _todict_(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
 
 class Person(Base):
     __tablename__ = "person"
@@ -98,6 +107,9 @@ class Person(Base):
             f"<Person(personid={self.personid}, nameid={self.nameid}, name={self.name}>"
         )
 
+    def _todict_(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
 
 class Personmap(Base):
     __tablename__ = "personmap"
@@ -109,3 +121,6 @@ class Personmap(Base):
 
     def __repr__(self):
         return f"<Personmap(personid={self.personid}, programid={self.programid}, role={self.role}>"
+
+    def _todict_(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
