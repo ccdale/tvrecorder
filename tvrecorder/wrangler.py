@@ -87,10 +87,14 @@ def favourites(eng, favs=True):
     try:
         gd = 1 if favs else 0
         with Session(eng) as session, session.begin():
-            xfavs = session.query(Channel).filter(Channel.getdata > gd).all()
-            favs = [x._todict_() for x in xfavs]
-            # favs = [x.__dict__ for x in xfavs]
-        return favs
+            xfavs = (
+                session.query(Channel)
+                .filter(Channel.getdata > gd)
+                .order_by(Channel.channelnumber)
+                .all()
+            )
+            xfavs = [x._todict_() for x in xfavs]
+        return xfavs
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 
@@ -432,5 +436,83 @@ def getRMap(xmap):
         for xm in xmap:
             rmap[int(xm["stationID"])] = int(xm["channel"])
         return rmap
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def whatsOnNow(eng, now=int(time.time()), favs=True, limit=40):
+    """
+    programid = Column(String(128), primary_key=True)
+    stationid = Column(String(128), primary_key=True)
+    airdate = Column(Integer(), primary_key=True)
+    duration = Column(Integer())
+    md5 = Column(String(32))
+    """
+    try:
+        xscheds = []
+        xfavs = favourites(eng, favs=favs)
+        chanids = [x["stationid"] for x in xfavs]
+        with Session(eng) as session, session.begin():
+            scheds = (
+                session.query(Schedule)
+                .filter(
+                    Schedule.airdate < (now + 3600),
+                    (Schedule.airdate + Schedule.duration) > now,
+                    Schedule.stationid.in_(chanids),
+                )
+                .order_by(Schedule.airdate)
+                .limit(limit)
+            )
+            for x in scheds:
+                dsched = x._todict_()
+                dsched["dchan"], dsched["dprog"] = progDetailsFromSchedule(session, x)
+                xscheds.append(dsched)
+        return xscheds
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def chanDetails(session, chanid):
+    try:
+        chan = session.query(Channel).filter_by(stationid=chanid).first()
+        dchan = chan._todict_()
+        return dchan
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def progDetailsFromSchedule(session, schedule, withchan=True):
+    try:
+        # there should only be one program
+        prog = session.query(Program).filter_by(programid=schedule.programid).first()
+        dprog = prog._todict_()
+        dchan = chanDetails(session, schedule.stationid) if withchan else None
+        return (dchan, dprog)
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def chanProgs(eng, chanid, now=int(time.time()), limit=40):
+    try:
+        xscheds = []
+        with Session(eng) as session, session.begin():
+            dchan = chanDetails(session, chanid)
+            scheds = (
+                session.query(Schedule)
+                .filter(
+                    Schedule.stationid == chanid,
+                    Schedule.airdate < (now + 86400),
+                    (Schedule.airdate + Schedule.duration) > now,
+                )
+                .order_by(Schedule.airdate)
+                .limit(limit)
+                # .all()
+            )
+            for x in scheds:
+                dsched = x._todict_()
+                _, dsched["dprog"] = progDetailsFromSchedule(session, x, withchan=False)
+                dsched["dchan"] = dchan
+                xscheds.append(dsched)
+        return xscheds
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)

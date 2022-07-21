@@ -22,17 +22,22 @@ from ccaerrors import errorNotify
 
 from tvrecorder.config import Configuration
 from tvrecorder.db import makeDBEngine
-from tvrecorder.windows import chanWindow
+from tvrecorder.windows import chanWindow, mainWindow
+from tvrecorder.wrangler import whatsOnNow
 
 appname = "tvrecorder"
 
 
 def begin():
     try:
-        debug = True
+        # debug = True
+        debug = False
         cf = Configuration(appname=appname)
         eng = makeDBEngine(cf, echo=debug)
-        chanWindow(eng)
+        # chanWindow(eng)
+        # scheds = whatsOnNow(eng)
+        # print(f"{scheds=}")
+        mainWindow(eng)
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
 

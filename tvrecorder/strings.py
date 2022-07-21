@@ -16,6 +16,7 @@
 #     You should have received a copy of the GNU General Public License
 #     along with tvrecorder.  If not, see <http://www.gnu.org/licenses/>.
 #
+from datetime import datetime
 import sys
 
 from ccaerrors import errorNotify
@@ -35,5 +36,29 @@ def cleanString(istring):
         istring = istring.replace("_-_", "-")
         istring = istring.replace("-_-", "_")
         return istring
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def timeString(ts):
+    try:
+        dt = datetime.fromtimestamp(ts)
+        xstr = f"{dt.hour:>2}:{dt.minute:0>2}"
+        return xstr
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def durationString(duration):
+    try:
+        day = int(duration / 86400)
+        duration = int(duration % 86400)
+        hour = int(duration / 3600)
+        duration = int(duration % 3600)
+        minute = int(duration / 60)
+        second = int(duration % 60)
+        if day > 0:
+            return f"{day:>2}:{hour:>2}:{minute:0>2}"
+        return f"{hour:>2}:{minute:0>2}"
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)

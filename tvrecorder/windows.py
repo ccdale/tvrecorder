@@ -20,7 +20,9 @@ import sys
 import PySimpleGUI as sg
 from ccaerrors import errorNotify, errorRaise
 
-from tvrecorder.wrangler import favourites
+from tvrecorder.layouts import programLine, programLineHeadings
+from tvrecorder.strings import durationString, timeString
+from tvrecorder.wrangler import favourites, whatsOnNow, chanProgs
 
 
 def credsWindow(username):
@@ -58,13 +60,79 @@ def errorWindow(emsg):
         errorRaise(sys.exc_info()[2], e)
 
 
-def chanWindow(engine):
+def chanWindow(engine, favs=True):
     try:
-        favs = favourites(engine)
-        print(favs)
-        chans = [[x["channelnumber"], x["name"]] for x in favs]
-        layout = [[sg.T("test chans")], [sg.Cancel()], [sg.Listbox(values=chans)]]
+        favs = favourites(engine, favs=favs)
+        chans = [
+            [
+                sg.T(x["channelnumber"], size=4, justification="right"),
+                sg.T(x["name"], key=x["stationid"], enable_events=True),
+            ]
+            for x in favs
+        ]
+        layout = [
+            [sg.T("Pick a Channel")],
+            chans,
+            [sg.Cancel()],
+        ]
         win = sg.Window("test chans", layout)
+        event, values = win.read()
+        print(f"{event=}, {values=}")
+        win.close()
+        for fav in favs:
+            if fav["stationid"] == event:
+                print(f"channel: {fav['name']}")
+                break
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def mainWindow(engine):
+    try:
+        scheds = whatsOnNow(engine)
+        layout = [programLineHeadings(withchannel=True)]
+        layout.extend(
+            [
+                programLine(x, withchannel=True, nextkey=nk)
+                for nk, x in enumerate(scheds)
+            ]
+        )
+        layout.append([sg.Cancel()])
+        win = sg.Window("On Now", layout)
+        while True:
+            event, values = win.read()
+            print(f"{event=}, {values=}")
+            if event == "Cancel" or sg.WIN_CLOSED:
+                break
+            elif event.startswith("pl-"):
+                # retrieve the chanid from the program line metadata
+                chanid = win.find_element(event).metadata
+                # tmp = event.split("-")
+                # chanid = tmp[1]
+                print(f"{chanid=}")
+                channelProgramsWindow(engine, chanid)
+            elif event.startswith("s-"):
+                # retrieve the schedule md5 from the program line metadata
+                pass
+        win.close()
+    except Exception as e:
+        errorNotify(sys.exc_info()[2], e)
+
+
+def channelProgramsWindow(engine, chanid, maxlines=35):
+    try:
+        scheds = chanProgs(engine, chanid, limit=maxlines)
+        # print(f"{scheds=}")
+        if len(scheds):
+            channame = scheds[0]["dchan"]["name"]
+        layout = [programLineHeadings(withchannel=True)]
+        layout.extend([programLine(x, nextkey=nk) for nk, x in enumerate(scheds)])
+        if len(layout) > maxlines:
+            layout = layout[:maxlines]
+        layout.append([sg.Cancel()])
+        win = sg.Window(f"{channame}", layout)
+        event, values = win.read()
+        print(f"{event=}, {values=}")
         win.close()
     except Exception as e:
         errorNotify(sys.exc_info()[2], e)
