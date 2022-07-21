@@ -20,7 +20,7 @@ import sys
 
 from ccaerrors import errorNotify, errorExit, errorRaise
 
-__version__ = "0.1.66"
+__version__ = "0.1.67"
 __appname__ = "tvrecorder"
 
 
